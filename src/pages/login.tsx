@@ -1,14 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, use } from "react";
 import type { ChangeEvent, JSX } from "react";
 import axios, { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Login(): JSX.Element {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [message, setMessage] = useState<string>("");
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const res = await fetch("http://localhost:3000/api/auth/check-auth", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.loggedIn){
+        navigate("/myevents");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+
   const login = async () => {
-     console.log("Login-funksjon kalt");
+    console.log("Login-funksjon kalt");
     try {
       await axios.post(
         "http://localhost:3000/api/auth/login",
@@ -16,6 +32,7 @@ function Login(): JSX.Element {
         { withCredentials: true }
       );
       setMessage("Innlogging vellykket!");
+      navigate("/myevents")
     } catch (err) {
       const error = err as AxiosError;
       setMessage("Innlogging feilet");
