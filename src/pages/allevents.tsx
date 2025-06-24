@@ -10,7 +10,7 @@ type EventType = {
   owner_id: number;
 };
 
-const Event = () => {
+const AllEvents = () => {
   const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -52,15 +52,29 @@ const Event = () => {
         <p>Du har ikke opprettet noen arrangementer.</p>
       ) : (
         <ul>
-          {events.map((event) => (
-            <li key={event.id}>
-              <strong>{event.name}</strong> – {new Date(event.event_date).toLocaleDateString()}
-            </li>
-          ))}
+ {events.map((event) => (
+    <li key={event.id}>
+      <button
+        onClick={() => navigate(`/event/${event.id}`)}
+        style={{
+          background: "none",
+          border: "none",
+          color: "blue",
+          textDecoration: "underline",
+          cursor: "pointer",
+          fontSize: "1em"
+        }}
+      >
+        {event.name}
+      </button>
+      {" – "}
+      {new Date(event.event_date).toLocaleDateString()}
+    </li>
+  ))}
         </ul>
       )}
     </div>
   );
 };
 
-export default Event;
+export default AllEvents;

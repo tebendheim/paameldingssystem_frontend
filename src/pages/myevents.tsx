@@ -30,12 +30,6 @@ const MyEventsPage = () => {
         credentials: "include", // viktig for session-cookie!
       });
 
-      if (res.status === 401) {
-        // Ikke logget inn -> redirect
-        navigate("/login");
-        return;
-      }
-
       if (res.ok) {
         const data = await res.json();
         setEvents(data);
