@@ -54,7 +54,10 @@ const MyEventsPage = () => {
         <ul>
           {events.map((event) => (
             <li key={event.id}>
-              <strong>{event.name}</strong> – {new Date(event.event_date).toLocaleDateString()}
+                <button onClick={ () => (navigate(`/myevent/${event.id}`))} >
+                    <strong>{event.name}</strong>
+                </button>
+               – {new Date(event.event_date).toLocaleDateString()}
             </li>
           ))}
         </ul>

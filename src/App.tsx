@@ -5,6 +5,8 @@ import AllEvents from "./pages/allevents"
 import EventRegister from "./pages/eventregister";
 import EventRegistrations from "./pages/eventregistrations";
 import ProtectedRoute from "./functions/protectedRoute";
+import MyEvent from "./pages/myevent";
+import EditFieldsPage from "./pages/editFieldsPage";
 
 function App() {
 
@@ -18,7 +20,9 @@ function App() {
         <Route path="/event/:id" element={<EventRegister />} />
         <Route element = {<ProtectedRoute />}>
           <Route path="/myevents" element = {<MyEventsPage />} />
-          <Route path="/myevents/:id/registrations" element={<EventRegistrations />} />
+          <Route path="/myevent/:id/registrations" element={<EventRegistrations />} />
+          <Route path="/myevent/:id" element={<MyEvent />} />
+          <Route path="/myevent/:id/edit-fields" element={<EditFieldsPage />} />
         </Route>
       </Routes>
     </Router>
