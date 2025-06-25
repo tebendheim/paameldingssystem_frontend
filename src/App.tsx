@@ -7,6 +7,7 @@ import EventRegistrations from "./pages/eventregistrations";
 import ProtectedRoute from "./functions/protectedRoute";
 import MyEvent from "./pages/myevent";
 import EditFieldsPage from "./pages/editFieldsPage";
+import EventSettings from "./pages/eventSettings";
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
           <Route path="/myevent/:id/registrations" element={<EventRegistrations />} />
           <Route path="/myevent/:id" element={<MyEvent />} />
           <Route path="/myevent/:id/edit-fields" element={<EditFieldsPage />} />
+          <Route path = "/myevent/:id/settings" element={<EventSettings />} />
         </Route>
       </Routes>
     </Router>

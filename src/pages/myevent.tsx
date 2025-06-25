@@ -9,7 +9,12 @@ type Field = {
 
 type Summary = {
   totalRegistrations: number;
-  fieldSummaries: Record<string, Record<string, number>>; // f.eks. { "Skostørrelse": { "38": 3, "39": 5 } }
+  fieldSummaries: Record<string, Record<string, number>>;
+};
+
+type Ticket = {
+  name: string;
+  price: number;
 };
 
 const MyEvent = () => {
@@ -19,15 +24,21 @@ const MyEvent = () => {
   const [eventName, setEventName] = useState("");
   const [fields, setFields] = useState<Field[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [isPaid, setIsPaid] = useState(false);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!id) return;
 
-    // Hent event-navn
+    // Hent event
     fetch(`http://localhost:3000/api/events/event/${id}`, { credentials: "include" })
       .then((res) => res.json())
-      .then((data) => setEventName(data.name))
+      .then((data) => {
+        setEventName(data.name);
+        setIsPaid(data.is_paid); // antar backend returnerer `is_paid`
+        setTickets(data.tickets || []);
+      })
       .catch((err) => setError("Klarte ikke å hente event"));
 
     // Hent felter
@@ -50,12 +61,17 @@ const MyEvent = () => {
     navigate(`/myevent/${id}/registrations`);
   };
 
+  const handleEditSettings = () => {
+    navigate(`/myevent/${id}/settings`);
+  };
+
   if (error) return <div>{error}</div>;
 
   return (
     <div style={{ padding: "1rem" }}>
       <h1>{eventName}</h1>
 
+      {/* Oppsummering */}
       {summary && (
         <div>
           <p><strong>Antall registrerte:</strong> {summary.totalRegistrations}</p>
@@ -74,10 +90,35 @@ const MyEvent = () => {
         </div>
       )}
 
-      <button onClick={handleEditFields}>Rediger felter</button>
-      <button onClick={handleViewRegistrations} style={{ marginLeft: "1rem" }}>
-        Se registrerte
-      </button>
+      {/* Knapper */}
+      <div style={{ marginTop: "1rem" }}>
+        <button onClick={handleViewRegistrations}>Se registrerte</button>
+        <button onClick={handleEditFields} style={{ marginLeft: "1rem" }}>Rediger felter</button>
+        <button onClick={handleEditSettings} style={{ marginLeft: "1rem" }}>Innstillinger</button>
+      </div>
+
+      {/* Innstillinger-visning */}
+      <div style={{ marginTop: "2rem" }}>
+        <h3>Innstillinger</h3>
+        <p><strong>Betalt event:</strong> {isPaid ? "Ja" : "Nei"}</p>
+
+        {isPaid && (
+          <div>
+            <h4>Billettyper</h4>
+            {tickets.length === 0 ? (
+              <p>Ingen billettyper lagt til.</p>
+            ) : (
+              <ul>
+                {tickets.map((ticket, idx) => (
+                  <li key={idx}>
+                    {ticket.name} – {ticket.price} kr
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
