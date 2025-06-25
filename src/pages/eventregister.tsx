@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState} from "react";
-import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
+import type {FormEvent} from "react"
 
 type EventType = {
   id: number;
@@ -9,18 +9,24 @@ type EventType = {
   created_at: string;
 };
 
+type FieldOption = {
+  id: number;
+  value: string;
+};
+
 type EventField = {
   id: number;
   label: string;
-  field_type: string;
+  field_type: string; // e.g. "text", "select"
   is_required: boolean;
+  options?: FieldOption[]; // optional for non-select fields
 };
 
 export default function EventRegister() {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventType | null>(null);
   const [fields, setFields] = useState<EventField[]>([]);
-  const [formData, setFormData] = useState<{ [key: string]: string }>({});
+  const [formData, setFormData] = useState<{ [key: number]: string }>({});
   const [email, setEmail] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -28,13 +34,13 @@ export default function EventRegister() {
     if (!id) return;
 
     // Hent event
-    fetch(`http://localhost:3000/api/events/event/${id}`, { credentials: "include" })
+    fetch(`http://localhost:3000/api/fields/event/${id}/fields`, { credentials: "include" })
       .then(res => res.json())
       .then(data => setEvent(data))
       .catch(err => console.error("Event-feil:", err));
 
-    // Hent felter
-    fetch(`http://localhost:3000/api/events/event/${id}/fields`, { credentials: "include" })
+    // Hent felter (med select-alternativer)
+    fetch(`http://localhost:3000/api/fields/event/${id}/fields`, { credentials: "include" })
       .then(res => res.json())
       .then(data => setFields(data))
       .catch(err => console.error("Felt-feil:", err));
@@ -49,7 +55,7 @@ export default function EventRegister() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
-        fieldValues: fields.map(field => ({
+        answers: fields.map(field => ({
           event_field_id: field.id,
           value: formData[field.id] || "",
         })),
@@ -85,14 +91,31 @@ export default function EventRegister() {
           <div key={field.id}>
             <label>
               {field.label} {field.is_required && "*"}
-              <input
-                type={field.field_type === "number" ? "number" : "text"}
-                required={field.is_required}
-                value={formData[field.id] || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, [field.id]: e.target.value })
-                }
-              />
+              {field.field_type === "select" ? (
+                <select
+                  required={field.is_required}
+                  value={formData[field.id] || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, [field.id]: e.target.value })
+                  }
+                >
+                  <option value="">Velg...</option>
+                  {field.options?.map((opt) => (
+                    <option key={opt.id} value={opt.value}>
+                      {opt.value}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={field.field_type === "number" ? "number" : "text"}
+                  required={field.is_required}
+                  value={formData[field.id] || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, [field.id]: e.target.value })
+                  }
+                />
+              )}
             </label>
           </div>
         ))}
@@ -103,5 +126,3 @@ export default function EventRegister() {
     </div>
   );
 }
-
-
